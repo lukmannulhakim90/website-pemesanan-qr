@@ -581,6 +581,8 @@ main {
     text-align: center;
     cursor: pointer;
     border: 1px solid var(--border-color);
+    position: relative; 
+    overflow: hidden;
 }
 .category-card:hover {
     transform: translateY(-5px);
@@ -589,8 +591,25 @@ main {
 .category-card h2 {
     font-size: 1.3rem;
     color: var(--primary-color);
+    position: relative;
+    z-index: 2;
+}
+/* === INI BLOK BARU === */
+.category-card i {
+    position: absolute;
+    font-size: 4.5rem; 
+    color: rgba(0, 0, 0, 0.04); 
+    bottom: -10px; 
+    right: -5px;
+    z-index: 1; 
+    transition: transform 0.3s ease, color 0.3s ease;
 }
 
+/* === INI BLOK BARU === */
+.category-card:hover i {
+    transform: scale(1.1) rotate(-5deg); 
+    color: rgba(0, 0, 0, 0.08); 
+}       
 /* === MENU ITEM LIST HEADER === */
 .item-list-header {
     display: flex;
