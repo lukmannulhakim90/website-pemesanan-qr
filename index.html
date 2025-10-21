@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luvium Cafe - QR Ordering App</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Luvium Cafe</div>
+                <div class="nav-buttons">
+                    <a href="#" class="btn" onclick="showSection('menu')">Menu</a>
+                    <a href="#" class="btn cart-btn" onclick="showCart()">
+                        Keranjang
+                        <span class="cart-count" id="cartCount">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <section id="menu">
+                 <div class="hero">
+                    <h1>Selamat Datang di Luvium Cafe</h1>
+                    <p>Pesan makanan dan minuman favoritmu dengan mudah via QR.</p>
+                </div>
+                <div id="menu-content"></div>
+            </section>
+
+            <section id="checkout" class="checkout">
+                <h2>Konfirmasi Pesanan</h2>
+                <div class="form-group">
+                    <label for="customerName">Nama Pelanggan:</label>
+                    <input type="text" id="customerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="tableNumber">Nomor Meja:</label>
+                    <input type="text" id="tableNumber" required>
+                </div>
+                <div id="orderSummary"></div>
+                <div class="cart-total" id="checkoutTotal"></div>
+                <button class="pay-btn" onclick="confirmOrder()">Bayar di Kasir</button>
+                <div class="success" id="successMsg">Pesanan berhasil dikirim! Silakan bayar di kasir.</div>
+            </section>
+        </div>
+    </main>
+
+    <div id="cartModal" class="cart-modal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>Keranjang Belanja</h2>
+                <button class="close-btn" onclick="closeCart()">×</button>
+            </div>
+            <div id="cartItems"></div>
+            <div class="cart-total" id="cartTotal">Total: Rp 0</div>
+            <button class="btn btn-checkout" onclick="showCheckout()">Lanjut ke Pembayaran</button>
+        </div>
+    </div>
+    
+    <div id="toast-notification"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
