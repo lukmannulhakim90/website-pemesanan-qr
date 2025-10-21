@@ -111,7 +111,24 @@ const menuData = {
 
 // Cart data
 let cart = [];
-
+const categoryIcons = {
+    'Asian Food': 'fa-solid fa-utensils',
+    'Western Food': 'fa-solid fa-burger',
+    'Special Korean': 'fa-solid fa-bowl-food',
+    'Salad Series': 'fa-solid fa-leaf',
+    'Snacks': 'fa-solid fa-cookie-bite',
+    'Signature Bar': 'fa-solid fa-star',
+    'Coffee Bar': 'fa-solid fa-mug-hot',
+    'Milk Bar': 'fa-solid fa-blender',
+    'Yakult Bar': 'fa-solid fa-bottle-droplet',
+    'Manual Brew': 'fa-solid fa-filter',
+    'Mocktail Bar': 'fa-solid fa-martini-glass',
+    'Tea Bar': 'fa-solid fa-mug-saucer',
+    'Juicy Series': 'fa-solid fa-apple-whole',
+    'Dessert': 'fa-solid fa-ice-cream',
+    'Other': 'fa-solid fa-box-archive',
+    'Extras': 'fa-solid fa-plus'
+};
 // === FUNGSI BARU: Notifikasi Toast (Lebih Keren dari Alert) ===
 function showToast(message) {
     const toast = document.getElementById('toast-notification');
@@ -135,7 +152,14 @@ function renderCategories() {
     for (const categoryName of Object.keys(menuData)) {
         const card = document.createElement('div');
         card.className = 'category-card';
-        card.innerHTML = `<h2>${categoryName}</h2>`;
+        // === INI KODE YANG DIUBAH ===
+        const iconClass = categoryIcons[categoryName] || 'fa-solid fa-circle-question'; 
+
+        card.innerHTML = `
+            <i class="${iconClass}"></i>
+            <h2>${categoryName}</h2>
+        `;
+        // =============================
         card.onclick = () => renderMenuItems(categoryName); 
         categoryGrid.appendChild(card);
     }
