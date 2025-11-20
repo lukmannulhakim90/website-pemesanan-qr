@@ -346,35 +346,52 @@ function showCheckout() {
     checkoutTotal.textContent = `Total: Rp ${total.toLocaleString('id-ID')}`;
 }
 
-// Confirm order
+// Fungsi Confirm Order yang BARU
 function confirmOrder() {
     const customerName = document.getElementById('customerName').value;
-    // PERBAIKAN: Menghapus 't' yang typo dari kode aslimu
     const tableNumber = document.getElementById('tableNumber').value;
     
     if (!customerName || !tableNumber) {
-        alert('Harap isi nama pelanggan dan nomor meja!');
+        showToast('Harap isi nama dan nomor meja!');
         return;
     }
     
     if (cart.length === 0) {
-        alert('Keranjang masih kosong!');
+        showToast('Keranjang masih kosong!');
         return;
     }
-    
-    document.getElementById('successMsg').style.display = 'block';
-    
-    // Kosongkan keranjang
+
+    // 1. SIMPAN DATA UNTUK DASHBOARD KASIR
+    const orderId = 'ORD-' + Date.now().toString().slice(-6); // ID Unik
+    const newOrder = {
+        id: orderId,
+        customerName: customerName,
+        tableNumber: tableNumber,
+        items: cart,
+        total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        status: 'Baru', // Status awal
+        timestamp: new Date().toLocaleString('id-ID')
+    };
+
+    // Ambil data lama dari LocalStorage, tambahkan yang baru
+    let existingOrders = JSON.parse(localStorage.getItem('luvium_orders')) || [];
+    existingOrders.push(newOrder);
+    localStorage.setItem('luvium_orders', JSON.stringify(existingOrders));
+
+    // 2. TAMPILKAN MODAL SUKSES YANG BESAR
+    const modal = document.getElementById('orderSuccessModal');
+    modal.classList.add('show');
+
+    // 3. RESET FORM DAN KERANJANG
     cart = [];
     updateCartCount();
-    
-    // Reset form
     document.getElementById('customerName').value = '';
     document.getElementById('tableNumber').value = '';
-    
-    // Kembali ke menu setelah 3 detik
-    setTimeout(() => {
-        document.getElementById('successMsg').style.display = 'none';
-        showSection('menu');
-    }, 3000);
+}
+
+// Fungsi tambahan untuk menutup modal
+function closeSuccessModal() {
+    const modal = document.getElementById('orderSuccessModal');
+    modal.classList.remove('show');
+    showSection('menu'); // Kembali ke menu
 }
