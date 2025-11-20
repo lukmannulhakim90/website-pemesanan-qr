@@ -101,22 +101,54 @@ main {
     margin-top: 100px; /* Jarak dari header fixed */
     padding: 2rem 0;
 }
+/* === HERO SECTION PERBAIKAN === */
 .hero {
+    /* Kita pakai gambar Unsplash suasana Cafe Gelap yang pasti bisa diakses */
+    background-image: url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1920&auto=format&fit=crop');
+    
+    /* Pastikan gambar menutupi area */
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+
+    /* Overlay Gelap (Supaya tulisan putih terbaca) */
+    background-color: rgba(0, 0, 0, 0.7) !important; /* Hitam 70% */
+    background-blend-mode: multiply; /* Mode pencampuran */
+
+    /* Tata letak */
     text-align: center;
-    padding: 2rem;
-    background: var(--card-bg);
+    padding: 8rem 2rem;
     border-radius: 15px;
-    margin-bottom: 2rem;
-    box-shadow: var(--shadow);
+    margin-bottom: 3rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    position: relative;
+    
+    /* Hapus background putih bawaan jika ada */
+    background: gray; /* Warna cadangan jika gambar gagal loading */
 }
+
+/* Pastikan Judul Putih */
 .hero h1 {
-    font-size: 2.5rem;
+    font-size: 3rem;
     margin-bottom: 0.5rem;
-    color: var(--primary-color);
+    color: #ffffff !important;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    z-index: 2;
+    position: relative;
 }
+
+/* Pastikan Deskripsi Putih */
 .hero p {
-    font-size: 1.1rem;
-    color: #777;
+    font-size: 1.2rem;
+    color: #e0e0e0 !important;
+    font-weight: 300;
+    letter-spacing: 4px;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+    z-index: 2;
+    position: relative;
 }
 
 /* === ANIMASI FADE-IN (Efek Keren) === */
@@ -565,35 +597,135 @@ main {
     }
 }
 
-/* === CATEGORY CARDS (Desain Baru) === */
+/* === CATEGORY CIRCLE (Tampilan Baru Seperti Referensi) === */
 .category-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    padding: 1rem;
     animation: fadeIn 0.5s ease forwards;
 }
+
 .category-card {
-    background: var(--card-bg);
-    border-radius: 15px;
-    padding: 1.5rem;
-    box-shadow: var(--shadow);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    text-align: center;
+    /* Reset style kartu lama */
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    width: 120px; /* Lebar area kategori */
+    position: relative; /* Penting untuk posisi popup */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     cursor: pointer;
-    border: 1px solid var(--border-color);
-    position: relative; 
-    overflow: hidden;
+    transition: transform 0.3s ease;
 }
+
 .category-card:hover {
     transform: translateY(-5px);
-    box-shadow: var(--shadow-hover);
 }
+
+/* Gambar Bulat */
+.cat-img-container {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    margin-bottom: 10px;
+    border: 3px solid white; /* List putih biar rapi */
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.category-card:hover .cat-img-container {
+    box-shadow: 0 8px 20px rgba(166, 123, 91, 0.3); /* Warna primary saat hover */
+    transform: scale(1.05);
+}
+
+.cat-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Teks Judul Kategori */
 .category-card h2 {
-    font-size: 1.3rem;
-    color: var(--primary-color);
-    position: relative;
-    z-index: 2;
+    font-size: 1rem;
+    color: #333; /* Warna teks gelap biru/hitam seperti contoh */
+    text-align: center;
+    font-weight: 600;
+    margin: 0;
 }
+
+/* === HOVER PREVIEW (POPUP "SEPINTAS") === */
+.category-preview {
+    position: absolute;
+    top: 110%; /* Muncul di bawah lingkaran */
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    width: 200px;
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    z-index: 10;
+    
+    /* Sembunyikan secara default */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    pointer-events: none; /* Supaya tidak mengganggu klik */
+}
+
+/* Segitiga kecil di atas popup */
+.category-preview::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 8px 8px 8px;
+    border-style: solid;
+    border-color: transparent transparent white transparent;
+}
+
+/* Tampilkan saat hover */
+.category-card:hover .category-preview {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.preview-title {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.preview-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+}
+
+.preview-list li {
+    font-size: 0.85rem;
+    color: #555;
+    padding: 3px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.preview-list li:last-child {
+    border-bottom: none;
+    font-style: italic;
+    color: #999;
+    font-size: 0.75rem;
+    margin-top: 5px;
+}   
 /* === INI BLOK BARU === */
 .category-card i {
     position: absolute;
@@ -968,3 +1100,4 @@ section#menu {
     40% { height: 40px; width: 20px; opacity: 1; }
     100% { height: 40px; width: 20px; opacity: 1; }
 }
+
