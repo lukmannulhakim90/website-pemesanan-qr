@@ -31,7 +31,6 @@
             color: var(--secondary-color);
             display: flex;
             min-height: 100vh;
-            /* Sembunyikan body dulu sampai cek login selesai agar tidak flickering */
             visibility: hidden; 
         }
 
@@ -224,18 +223,6 @@
 </head>
 <body>
     
-    <script>
-        // === SCRIPT KEAMANAN (Cek Login Paling Awal) ===
-        const sessionData = JSON.parse(sessionStorage.getItem('luvium_auth'));
-        if (!sessionData || !sessionData.isLoggedIn) {
-            alert('Anda harus login terlebih dahulu!');
-            window.location.href = 'login.html';
-        } else {
-            // Jika sudah login, tampilkan halaman
-            document.body.style.visibility = 'visible';
-        }
-    </script>
-
     <aside class="sidebar">
         <div class="logo">
             <i class="fa-solid fa-mug-hot"></i>
@@ -270,9 +257,6 @@
             <div class="page-title">
                 <h1>Dashboard Dapur</h1>
                 <p id="currentDate">Senin, 1 Januari 2024</p>
-            </div>
-            <div class="btn-refresh" onclick="loadOrders()" style="cursor:pointer; color:var(--primary-color)">
-                <i class="fa-solid fa-rotate"></i> Refresh
             </div>
         </div>
 
@@ -309,55 +293,90 @@
         </div>
         
         <div id="ordersContainer" class="orders-grid">
-            </div>
+        </div>
     </main>
 
-    <script>
-        // === LOGIKA DASHBOARD ===
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-        // 1. Tampilkan Tanggal & User yang Login
-        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID', dateOptions);
+    <script>
+    // 1. KONFIGURASI FIREBASE (DATA ASLI ANDA)
+    const firebaseConfig = {
+        apiKey: "AIzaSyDVx59IpIrmB0bX5ovmuvBr7UHmwqaMr-Y",
+        authDomain: "luviumcafe.firebaseapp.com",
+        databaseURL: "https://luviumcafe-default-rtdb.firebaseio.com",
+        projectId: "luviumcafe",
+        storageBucket: "luviumcafe.firebasestorage.app",
+        messagingSenderId: "78312130274",
+        appId: "1:78312130274:web:c7092da4ee30ce5b4c40bb"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // === LOGIKA DASHBOARD KASIR (REALTIME) ===
+
+    // Cek Login
+    const sessionData = JSON.parse(sessionStorage.getItem('luvium_auth'));
+    if (!sessionData || !sessionData.isLoggedIn) {
+        alert('Anda harus login terlebih dahulu!');
+        window.location.href = 'login.html';
+    } else {
+        document.body.style.visibility = 'visible';
+        document.getElementById('activeUser').textContent = sessionData.displayName;
+    }
+
+    // Update Tanggal
+    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID', dateOptions);
+
+    // FUNGSI UTAMA: MENDENGARKAN DATA SECARA LIVE
+    db.ref('orders').on('value', (snapshot) => {
+        const container = document.getElementById('ordersContainer');
+        const statCount = document.getElementById('statCount');
+        const statRevenue = document.getElementById('statRevenue');
         
-        // Ambil nama user dari Session
-        if(sessionData) {
-            document.getElementById('activeUser').textContent = sessionData.displayName;
+        container.innerHTML = ''; // Bersihkan dulu
+        
+        const rawData = snapshot.val(); // Ambil data mentah
+
+        if (!rawData) {
+            // Jika Database Kosong
+            statCount.textContent = 0;
+            statRevenue.textContent = 'Rp 0';
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                    <h3>Tidak ada pesanan aktif</h3>
+                    <p>Menunggu pesanan masuk...</p>
+                </div>`;
+            return;
         }
 
-        // 2. Load data & Auto Refresh
-        document.addEventListener('DOMContentLoaded', loadOrders);
-        setInterval(loadOrders, 5000);
+        // Ubah data object menjadi array agar bisa diurutkan
+        let orders = [];
+        Object.keys(rawData).forEach(key => {
+            orders.push({
+                firebaseKey: key,
+                ...rawData[key]
+            });
+        });
 
-        function loadOrders() {
-            const container = document.getElementById('ordersContainer');
-            const statCount = document.getElementById('statCount');
-            const statRevenue = document.getElementById('statRevenue');
+        // Hitung Statistik
+        statCount.textContent = orders.length;
+        const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+        statRevenue.textContent = 'Rp ' + totalRevenue.toLocaleString('id-ID');
 
-            const orders = JSON.parse(localStorage.getItem('luvium_orders')) || [];
+        // Render Kartu (Urutan Terbalik: Terbaru di atas)
+        orders.reverse().forEach((order) => {
+            const card = document.createElement('div');
+            card.className = 'order-card';
 
-            statCount.textContent = orders.length;
-            const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
-            statRevenue.textContent = 'Rp ' + totalRevenue.toLocaleString('id-ID');
-
-            container.innerHTML = '';
-
-            if (orders.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fa-solid fa-clipboard-check"></i>
-                        <h3>Tidak ada pesanan aktif</h3>
-                        <p>Menunggu pesanan masuk...</p>
-                    </div>
-                `;
-                return;
-            }
-
-            orders.reverse().forEach((order, index) => {
-                const originalIndex = orders.length - 1 - index;
-                const card = document.createElement('div');
-                card.className = 'order-card';
-
-                let itemsListHtml = '';
+            let itemsListHtml = '';
+            if(order.items) {
                 order.items.forEach(item => {
                     itemsListHtml += `
                         <li>
@@ -366,50 +385,51 @@
                         </li>
                     `;
                 });
-
-                card.innerHTML = `
-                    <div class="card-header">
-                        <div class="table-badge">Meja ${order.tableNumber}</div>
-                        <div class="order-time"><i class="fa-regular fa-clock"></i> ${order.timestamp.split(' ')[1] || order.timestamp}</div>
-                    </div>
-                    <div class="card-body">
-                        <span class="cust-name">${order.customerName}</span>
-                        <ul class="order-list">${itemsListHtml}</ul>
-                    </div>
-                    <div class="card-footer">
-                        <div class="total-price">Total: Rp ${order.total.toLocaleString('id-ID')}</div>
-                        <button class="btn-action btn-complete" onclick="markAsDone(${originalIndex})">
-                            <i class="fa-solid fa-check"></i> Selesai & Bayar
-                        </button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function markAsDone(index) {
-            if(confirm('Selesaikan pesanan ini?')) {
-                let orders = JSON.parse(localStorage.getItem('luvium_orders')) || [];
-                orders.splice(index, 1);
-                localStorage.setItem('luvium_orders', JSON.stringify(orders));
-                loadOrders();
             }
-        }
 
-        function clearAllData() {
-            if(confirm('Hapus SELURUH riwayat pesanan?')) {
-                localStorage.removeItem('luvium_orders');
-                loadOrders();
-            }
-        }
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="table-badge">Meja ${order.tableNumber}</div>
+                    <div class="order-time"><i class="fa-regular fa-clock"></i> ${order.timestamp.split(' ')[1] || order.timestamp}</div>
+                </div>
+                <div class="card-body">
+                    <span class="cust-name">${order.customerName}</span>
+                    <ul class="order-list">${itemsListHtml}</ul>
+                </div>
+                <div class="card-footer">
+                    <div class="total-price">Total: Rp ${order.total.toLocaleString('id-ID')}</div>
+                    <button class="btn-action btn-complete" onclick="markAsDone('${order.firebaseKey}')">
+                        <i class="fa-solid fa-check"></i> Selesai & Bayar
+                    </button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    });
 
-        // FUNGSI LOGOUT
-        function logout() {
-            if(confirm('Apakah Anda yakin ingin logout?')) {
-                sessionStorage.removeItem('luvium_auth'); // Hapus sesi
-                window.location.href = 'login.html'; // Kembali ke login
-            }
+    // Fungsi Hapus
+    function markAsDone(key) {
+        if(confirm('Selesaikan pesanan ini?')) {
+            db.ref('orders/' + key).remove()
+                .then(() => console.log("Pesanan selesai"))
+                .catch((error) => alert("Gagal menghapus: " + error.message));
         }
+    }
+
+    // Fungsi Reset
+    function clearAllData() {
+        if(confirm('Hapus SELURUH riwayat pesanan?')) {
+            db.ref('orders').remove();
+        }
+    }
+
+    // Fungsi Logout
+    function logout() {
+        if(confirm('Apakah Anda yakin ingin logout?')) {
+            sessionStorage.removeItem('luvium_auth');
+            window.location.href = 'login.html';
+        }
+    }
     </script>
 </body>
 </html>
