@@ -3,125 +3,411 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Kasir - Luvium Cafe</title>
+    <title>Luvium POS - Dashboard Kasir</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
     <style>
-        /* Style Khusus Dashboard Kasir */
-        body { font-family: 'Poppins', sans-serif; background: #f4f7f6; color: #333; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .logo { font-size: 1.5rem; font-weight: bold; color: #A67B5B; }
-        .btn-refresh { background: #A67B5B; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-refresh:hover { background: #8E694D; }
+        /* === VARIABEL WARNA === */
+        :root {
+            --primary-color: #A67B5B;
+            --primary-dark: #8E694D;
+            --secondary-color: #333;
+            --bg-color: #F4F7F6;
+            --card-bg: #FFFFFF;
+            --sidebar-width: 260px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.05);
+            --font-primary: 'Poppins', sans-serif;
+        }
+
+        /* === RESET & BASE === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--secondary-color);
+            display: flex;
+            min-height: 100vh;
+            /* Sembunyikan body dulu sampai cek login selesai agar tidak flickering */
+            visibility: hidden; 
+        }
+
+        /* === SIDEBAR === */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-bg);
+            position: fixed;
+            height: 100%;
+            padding: 2rem;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 3rem;
+        }
+
+        .menu-link {
+            text-decoration: none;
+            color: #777;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .menu-link.active, .menu-link:hover {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 10px rgba(166, 123, 91, 0.3);
+        }
+
+        .menu-footer {
+            margin-top: auto;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+        }
+
+        /* === MAIN CONTENT === */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 2rem;
+        }
+
+        /* === TOP BAR & STATS === */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title h1 { font-size: 1.8rem; color: var(--secondary-color); }
+        .page-title p { color: #888; font-size: 0.9rem; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .stat-icon {
+            width: 50px; height: 50px;
+            border-radius: 12px;
+            background: rgba(166, 123, 91, 0.1);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-info h3 { font-size: 1.8rem; font-weight: 700; color: var(--secondary-color); margin-bottom: 0; }
+        .stat-info p { color: #888; font-size: 0.9rem; margin-top: 5px; }
+
+        /* === ORDERS GRID === */
+        .orders-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* === ORDER CARD === */
+        .order-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 0;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+            overflow: hidden;
+            border: 1px solid #eee;
+            position: relative;
+            animation: slideIn 0.4s ease forwards;
+        }
+        .order-card:hover { transform: translateY(-5px); }
+        .order-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: var(--primary-color);
+        }
+
+        .card-header {
+            padding: 1.2rem;
+            background: #FAFAFA;
+            border-bottom: 1px dashed #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .table-badge {
+            background: var(--secondary-color);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .order-time { font-size: 0.8rem; color: #888; display: flex; align-items: center; gap: 5px; }
+
+        .card-body { padding: 1.2rem; max-height: 250px; overflow-y: auto; }
+        .cust-name { font-weight: 700; margin-bottom: 1rem; font-size: 1.1rem; display: block; }
+        .order-list { list-style: none; }
+        .order-list li { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.95rem; color: #555; }
+        .order-list li span.qty { font-weight: 700; color: var(--primary-color); margin-right: 10px; min-width: 20px; }
+
+        .card-footer { padding: 1.2rem; border-top: 1px solid #eee; background: #fff; }
+        .total-price { font-size: 1.2rem; font-weight: 800; color: var(--primary-color); text-align: right; margin-bottom: 1rem; }
         
-        /* Grid Kartu Pesanan */
-        .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .btn-action { width: 100%; padding: 0.8rem; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.3s; }
+        .btn-complete { background: #28a745; color: white; }
+        .btn-complete:hover { background: #218838; }
+
+        .btn-reset { background: #FFE5E5; color: #D32F2F; border: none; font-weight: 600; cursor: pointer; width: 100%; justify-content: flex-start; }
+        .btn-reset:hover { background: #FFCDCD; }
+        .btn-logout { background: #333; color: white; border: none; font-weight: 600; cursor: pointer; width: 100%; justify-content: flex-start; margin-top: 10px;}
+        .btn-logout:hover { background: #555; }
+
+        /* Empty State */
+        .empty-state { grid-column: 1 / -1; text-align: center; padding: 4rem; background: white; border-radius: 15px; color: #999; }
+        .empty-state i { font-size: 4rem; margin-bottom: 1rem; color: #ddd; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        .order-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 5px solid #A67B5B; position: relative; }
-        .order-header { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .table-badge { background: #333; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; }
-        .order-time { font-size: 0.8rem; color: #888; }
-        
-        .order-items { margin-bottom: 15px; max-height: 200px; overflow-y: auto; }
-        .order-item { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; }
-        
-        .order-total { font-weight: bold; font-size: 1.1rem; text-align: right; margin-bottom: 15px; color: #A67B5B; }
-        
-        .actions { display: flex; gap: 10px; }
-        .btn-done { flex: 1; background: #28a745; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; }
-        .btn-delete { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
-        
-        .empty-state { grid-column: 1/-1; text-align: center; padding: 50px; color: #999; }
+        /* Responsive */
+        @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .sidebar { width: 80px; padding: 1rem 0.5rem; }
+            .logo span, .menu-link span { display: none; }
+            .logo { justify-content: center; margin-bottom: 2rem; }
+            .menu-link { justify-content: center; padding: 1rem; }
+            .main-content { margin-left: 80px; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
+    
+    <script>
+        // === SCRIPT KEAMANAN (Cek Login Paling Awal) ===
+        const sessionData = JSON.parse(sessionStorage.getItem('luvium_auth'));
+        if (!sessionData || !sessionData.isLoggedIn) {
+            alert('Anda harus login terlebih dahulu!');
+            window.location.href = 'login.html';
+        } else {
+            // Jika sudah login, tampilkan halaman
+            document.body.style.visibility = 'visible';
+        }
+    </script>
 
-    <div class="header">
-        <div class="logo"><i class="fa-solid fa-mug-hot"></i> Luvium Kasir</div>
-        <div>
-            <button class="btn-refresh" onclick="loadOrders()"><i class="fa-solid fa-rotate"></i> Refresh Data</button>
-            <button class="btn-refresh" onclick="clearAllData()" style="background: #dc3545; margin-left: 10px;">Reset Semua</button>
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-mug-hot"></i>
+            <span>Luvium POS</span>
         </div>
-    </div>
+        
+        <nav>
+            <div class="menu-link active">
+                <i class="fa-solid fa-border-all"></i>
+                <span>Pesanan Masuk</span>
+            </div>
+            <div class="menu-link" onclick="alert('Fitur demo: Riwayat belum tersedia')">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Riwayat</span>
+            </div>
+        </nav>
 
-    <div id="ordersContainer" class="orders-grid">
+        <div class="menu-footer">
+            <button class="menu-link btn-reset" onclick="clearAllData()">
+                <i class="fa-solid fa-trash-can"></i>
+                <span>Reset Data</span>
+            </button>
+            <button class="menu-link btn-logout" onclick="logout()">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </button>
         </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Dashboard Dapur</h1>
+                <p id="currentDate">Senin, 1 Januari 2024</p>
+            </div>
+            <div class="btn-refresh" onclick="loadOrders()" style="cursor:pointer; color:var(--primary-color)">
+                <i class="fa-solid fa-rotate"></i> Refresh
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa-solid fa-utensils"></i></div>
+                <div class="stat-info">
+                    <h3 id="statCount">0</h3>
+                    <p>Pesanan Aktif</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(40, 167, 69, 0.1); color:#28a745">
+                    <i class="fa-solid fa-coins"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="statRevenue">Rp 0</h3>
+                    <p>Est. Pendapatan</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(51, 51, 51, 0.1); color:#333">
+                    <i class="fa-solid fa-user-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 style="font-size: 1.1rem; font-weight:600" id="activeUser">Admin</h3>
+                    <p>Shift Aktif</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="orders-header">
+            <h2>Antrian Pesanan</h2>
+        </div>
+        
+        <div id="ordersContainer" class="orders-grid">
+            </div>
+    </main>
 
     <script>
-        // === LOGIKA DASHBOARD KASIR ===
-        
-        // 1. Load data saat halaman dibuka
-        document.addEventListener('DOMContentLoaded', loadOrders);
+        // === LOGIKA DASHBOARD ===
 
-        // Agar otomatis refresh setiap 5 detik (opsional)
-        setInterval(loadOrders, 5000); 
+        // 1. Tampilkan Tanggal & User yang Login
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID', dateOptions);
+        
+        // Ambil nama user dari Session
+        if(sessionData) {
+            document.getElementById('activeUser').textContent = sessionData.displayName;
+        }
+
+        // 2. Load data & Auto Refresh
+        document.addEventListener('DOMContentLoaded', loadOrders);
+        setInterval(loadOrders, 5000);
 
         function loadOrders() {
             const container = document.getElementById('ordersContainer');
-            // Ambil data dari LocalStorage (yang disimpan oleh halaman pelanggan)
+            const statCount = document.getElementById('statCount');
+            const statRevenue = document.getElementById('statRevenue');
+
             const orders = JSON.parse(localStorage.getItem('luvium_orders')) || [];
+
+            statCount.textContent = orders.length;
+            const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+            statRevenue.textContent = 'Rp ' + totalRevenue.toLocaleString('id-ID');
 
             container.innerHTML = '';
 
             if (orders.length === 0) {
-                container.innerHTML = '<div class="empty-state"><h2>Belum ada pesanan masuk</h2></div>';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                        <h3>Tidak ada pesanan aktif</h3>
+                        <p>Menunggu pesanan masuk...</p>
+                    </div>
+                `;
                 return;
             }
 
-            // Urutkan pesanan terbaru paling atas
             orders.reverse().forEach((order, index) => {
-                // Hitung ulang index asli sebelum di-reverse agar tombol hapus akurat
                 const originalIndex = orders.length - 1 - index;
-                
                 const card = document.createElement('div');
                 card.className = 'order-card';
-                
-                // Render Item List
-                let itemsHtml = '';
+
+                let itemsListHtml = '';
                 order.items.forEach(item => {
-                    itemsHtml += `
-                        <div class="order-item">
-                            <span>${item.quantity}x ${item.name}</span>
+                    itemsListHtml += `
+                        <li>
+                            <div><span class="qty">${item.quantity}x</span>${item.name}</div>
                             <span>${(item.price * item.quantity).toLocaleString('id-ID')}</span>
-                        </div>
+                        </li>
                     `;
                 });
 
                 card.innerHTML = `
-                    <div class="order-header">
-                        <div>
-                            <div style="font-weight:bold; font-size:1.1rem">${order.customerName}</div>
-                            <div class="order-time">${order.timestamp}</div>
-                        </div>
-                        <span class="table-badge">Meja ${order.tableNumber}</span>
+                    <div class="card-header">
+                        <div class="table-badge">Meja ${order.tableNumber}</div>
+                        <div class="order-time"><i class="fa-regular fa-clock"></i> ${order.timestamp.split(' ')[1] || order.timestamp}</div>
                     </div>
-                    <div class="order-items">
-                        ${itemsHtml}
+                    <div class="card-body">
+                        <span class="cust-name">${order.customerName}</span>
+                        <ul class="order-list">${itemsListHtml}</ul>
                     </div>
-                    <div class="order-total">Total: Rp ${order.total.toLocaleString('id-ID')}</div>
-                    <div class="actions">
-                        <button class="btn-done" onclick="markAsDone(${originalIndex})"><i class="fa-solid fa-check"></i> Selesai/Bayar</button>
+                    <div class="card-footer">
+                        <div class="total-price">Total: Rp ${order.total.toLocaleString('id-ID')}</div>
+                        <button class="btn-action btn-complete" onclick="markAsDone(${originalIndex})">
+                            <i class="fa-solid fa-check"></i> Selesai & Bayar
+                        </button>
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // Fungsi menyelesaikan pesanan (Hapus dari daftar)
         function markAsDone(index) {
-            if(confirm('Apakah pesanan ini sudah dibayar/selesai?')) {
+            if(confirm('Selesaikan pesanan ini?')) {
                 let orders = JSON.parse(localStorage.getItem('luvium_orders')) || [];
-                orders.splice(index, 1); // Hapus pesanan dari array
-                localStorage.setItem('luvium_orders', JSON.stringify(orders)); // Simpan lagi
-                loadOrders(); // Refresh tampilan
+                orders.splice(index, 1);
+                localStorage.setItem('luvium_orders', JSON.stringify(orders));
+                loadOrders();
             }
         }
 
-        // Fungsi Reset Darurat (Hapus semua)
         function clearAllData() {
-            if(confirm('Hapus SEMUA riwayat pesanan?')) {
+            if(confirm('Hapus SELURUH riwayat pesanan?')) {
                 localStorage.removeItem('luvium_orders');
                 loadOrders();
+            }
+        }
+
+        // FUNGSI LOGOUT
+        function logout() {
+            if(confirm('Apakah Anda yakin ingin logout?')) {
+                sessionStorage.removeItem('luvium_auth'); // Hapus sesi
+                window.location.href = 'login.html'; // Kembali ke login
             }
         }
     </script>
