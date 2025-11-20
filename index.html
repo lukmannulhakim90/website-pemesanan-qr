@@ -84,7 +84,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-  // 2. KONFIGURASI FIREBASE (Data dari screenshot kamu)
+  // 2. Konfigurasi (Data Asli Kamu)
   const firebaseConfig = {
     apiKey: "AIzaSyDVx59IpIrmB0bX5ovmuvBr7UHmwqaMr-Y",
     authDomain: "luviumcafe.firebaseapp.com",
@@ -95,17 +95,17 @@
     appId: "1:78312130274:web:c7092da4ee30ce5b4c40bb"
   };
 
-  // 3. JALANKAN FIREBASE
-  // Cek apakah firebase sudah ada biar ga error kalau reload
+  // 3. Inisialisasi Firebase (Pencegahan Error Double Load)
   if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
   }
   
-  // 4. SIMPAN DATABASE KE VARIABLE 'db' AGAR BISA DIPAKAI DI script.js
+  // 4. Simpan Database ke variabel 'db'
   const db = firebase.database();
 </script>
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
