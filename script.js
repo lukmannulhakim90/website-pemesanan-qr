@@ -373,7 +373,6 @@ function showCheckout() {
     checkoutTotal.textContent = `Total: Rp ${total.toLocaleString('id-ID')}`;
 }
 
-// Fungsi Confirm Order yang BARU
 function confirmOrder() {
     const customerName = document.getElementById('customerName').value;
     const tableNumber = document.getElementById('tableNumber').value;
@@ -388,38 +387,34 @@ function confirmOrder() {
         return;
     }
 
-    // 1. SIMPAN DATA UNTUK DASHBOARD KASIR
-    const orderId = 'ORD-' + Date.now().toString().slice(-6); // ID Unik
+    const orderId = 'ORD-' + Date.now().toString().slice(-6);
+    
     const newOrder = {
         id: orderId,
         customerName: customerName,
         tableNumber: tableNumber,
         items: cart,
         total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-        status: 'Baru', // Status awal
+        status: 'Baru',
         timestamp: new Date().toLocaleString('id-ID')
     };
 
-    // Ambil data lama dari LocalStorage, tambahkan yang baru
-    let existingOrders = JSON.parse(localStorage.getItem('luvium_orders')) || [];
-    existingOrders.push(newOrder);
-    localStorage.setItem('luvium_orders', JSON.stringify(existingOrders));
+    // === BAGIAN INI YANG DIGANTI (KIRIM KE ONLINE) ===
+    // Kita kirim ke folder 'orders' di database
+    firebase.database().ref('orders').push(newOrder)
+        .then(() => {
+            // Jika sukses terkirim
+            const modal = document.getElementById('orderSuccessModal');
+            modal.classList.add('show');
 
-    // 2. TAMPILKAN MODAL SUKSES YANG BESAR
-    const modal = document.getElementById('orderSuccessModal');
-    modal.classList.add('show');
-
-    // 3. RESET FORM DAN KERANJANG
-    cart = [];
-    updateCartCount();
-    document.getElementById('customerName').value = '';
-    document.getElementById('tableNumber').value = '';
+            // Reset Keranjang
+            cart = [];
+            updateCartCount();
+            document.getElementById('customerName').value = '';
+            document.getElementById('tableNumber').value = '';
+        })
+        .catch((error) => {
+            // Jika gagal (misal internet mati)
+            alert("Gagal mengirim pesanan: " + error.message);
+        });
 }
-
-// Fungsi tambahan untuk menutup modal
-function closeSuccessModal() {
-    const modal = document.getElementById('orderSuccessModal');
-    modal.classList.remove('show');
-    showSection('menu'); // Kembali ke menu
-}
-
