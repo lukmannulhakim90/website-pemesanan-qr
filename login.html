@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Kasir - Luvium Cafe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #A67B5B;
+            --primary-dark: #8E694D;
+            --bg-color: #F4F7F6;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body {
+            background: var(--bg-color);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .subtitle { color: #777; margin-bottom: 2rem; font-size: 0.9rem; }
+
+        .form-group { margin-bottom: 1.5rem; text-align: left; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; color: #333; }
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        .form-group input:focus { border-color: var(--primary-color); outline: none; }
+
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-login:hover { background: var(--primary-dark); }
+
+        .error-msg {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            display: none; /* Tersembunyi default */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <span class="logo">Luvium POS</span>
+        <p class="subtitle">Silakan login untuk memulai shift.</p>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Contoh: shiftpagi" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Masukkan password" required>
+            </div>
+            <button type="submit" class="btn-login">Masuk Dashboard</button>
+            <p class="error-msg" id="errorMsg">Username atau Password salah!</p>
+        </form>
+    </div>
+
+    <script>
+        // === DATA AKUN KASIR ===
+        const accounts = {
+            'okta': { 
+                pass: 'okta123', 
+                name: 'Sift Pagi Okta (07:00 - 15:00)' 
+            },
+            'fauzan': { 
+                pass: 'fauzan123', 
+                name: 'Sift Sore Fauzan (15:00 - 23:00)' 
+            },
+            'lukman': { 
+                pass: 'lukman123', 
+                name: 'Sift Malam Lukman (23:00 - 07:00)' 
+            }
+        };
+
+        function handleLogin(e) {
+            e.preventDefault(); // Mencegah reload halaman
+            
+            const userParams = document.getElementById('username').value.toLowerCase();
+            const passParams = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            // Cek Login
+            if (accounts[userParams] && accounts[userParams].pass === passParams) {
+                // Login Sukses
+                // Simpan sesi login di sessionStorage (Hilang jika browser ditutup, demi keamanan)
+                sessionStorage.setItem('luvium_auth', JSON.stringify({
+                    isLoggedIn: true,
+                    username: userParams,
+                    displayName: accounts[userParams].name
+                }));
+
+                // Redirect ke Dashboard
+                window.location.href = 'kasir.html';
+            } else {
+                // Login Gagal
+                errorMsg.style.display = 'block';
+                // Efek goyang pada input (opsional)
+                document.getElementById('password').value = '';
+            }
+        }
+    </script>
+</body>
+</html>
