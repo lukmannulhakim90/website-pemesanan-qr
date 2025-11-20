@@ -141,7 +141,7 @@ function showToast(message) {
     }, 3000);
 }
 
-// Fungsi untuk menampilkan daftar kategori
+// Fungsi untuk menampilkan daftar kategori (Versi Lingkaran + Preview)
 function renderCategories() {
     const menuContainer = document.getElementById('menu-content');
     menuContainer.innerHTML = ''; // Kosongkan dulu
@@ -150,22 +150,49 @@ function renderCategories() {
     categoryGrid.className = 'category-grid';
 
     for (const categoryName of Object.keys(menuData)) {
+        const items = menuData[categoryName];
+        
+        // 1. Ambil gambar dari item pertama sebagai sampul kategori
+        // Jika kategori kosong/error, pakai gambar default
+        let coverImage = 'https://via.placeholder.com/150';
+        if (items.length > 0) {
+            coverImage = items[0].image;
+        }
+
+        // 2. Siapkan daftar menu untuk preview (maksimal 3 item)
+        let previewHtml = '';
+        const previewLimit = 3;
+        items.slice(0, previewLimit).forEach(item => {
+            previewHtml += `<li>${item.name}</li>`;
+        });
+        
+        // Jika item lebih dari 3, tambahkan tulisan "...dan X lainnya"
+        if (items.length > previewLimit) {
+            previewHtml += `<li>+ ${items.length - previewLimit} menu lainnya</li>`;
+        }
+
         const card = document.createElement('div');
         card.className = 'category-card';
-        // === INI KODE YANG DIUBAH ===
-        const iconClass = categoryIcons[categoryName] || 'fa-solid fa-circle-question'; 
 
         card.innerHTML = `
-            <i class="${iconClass}"></i>
+            <div class="cat-img-container">
+                <img src="${coverImage}" alt="${categoryName}">
+            </div>
             <h2>${categoryName}</h2>
+            
+            <div class="category-preview">
+                <div class="preview-title">Menu Tersedia</div>
+                <ul class="preview-list">
+                    ${previewHtml}
+                </ul>
+            </div>
         `;
-        // =============================
+
         card.onclick = () => renderMenuItems(categoryName); 
         categoryGrid.appendChild(card);
     }
     menuContainer.appendChild(categoryGrid);
 }
-
 // Fungsi untuk menampilkan item dari kategori yang dipilih
 function renderMenuItems(categoryName) {
     const menuContainer = document.getElementById('menu-content');
@@ -395,3 +422,4 @@ function closeSuccessModal() {
     modal.classList.remove('show');
     showSection('menu'); // Kembali ke menu
 }
+
