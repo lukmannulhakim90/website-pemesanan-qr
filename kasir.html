@@ -296,27 +296,28 @@
         </div>
     </main>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-    <script>
-    // 1. KONFIGURASI FIREBASE (DATA ASLI ANDA)
-    const firebaseConfig = {
-        apiKey: "AIzaSyDVx59IpIrmB0bX5ovmuvBr7UHmwqaMr-Y",
-        authDomain: "luviumcafe.firebaseapp.com",
-        databaseURL: "https://luviumcafe-default-rtdb.firebaseio.com",
-        projectId: "luviumcafe",
-        storageBucket: "luviumcafe.firebasestorage.app",
-        messagingSenderId: "78312130274",
-        appId: "1:78312130274:web:c7092da4ee30ce5b4c40bb"
-    };
+<script>
+  // 2. Konfigurasi (Data Asli Kamu)
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVx59IpIrmB0bX5ovmuvBr7UHmwqaMr-Y",
+    authDomain: "luviumcafe.firebaseapp.com",
+    databaseURL: "https://luviumcafe-default-rtdb.firebaseio.com",
+    projectId: "luviumcafe",
+    storageBucket: "luviumcafe.firebasestorage.app",
+    messagingSenderId: "78312130274",
+    appId: "1:78312130274:web:c7092da4ee30ce5b4c40bb"
+  };
 
-    // Initialize Firebase
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.database();
-
+  // 3. Inisialisasi Firebase (Pencegahan Error Double Load)
+  if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+  }
+  
+  // 4. Simpan Database ke variabel 'db'
+  const db = firebase.database();
     // === LOGIKA DASHBOARD KASIR (REALTIME) ===
 
     // Cek Login
@@ -433,3 +434,4 @@
     </script>
 </body>
 </html>
+
