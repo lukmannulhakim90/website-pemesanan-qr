@@ -68,7 +68,19 @@
     </div>
     
     <div id="toast-notification"></div>
-
+<div id="orderSuccessModal" class="success-modal-overlay">
+    <div class="success-modal-content">
+        <div class="checkmark-circle">
+            <div class="background"></div>
+            <div class="checkmark draw"></div>
+        </div>
+        <h2>Pesanan Berhasil!</h2>
+        <p>Mohon tunggu, pesanan Anda sedang disiapkan.</p>
+        <p class="order-note">Silakan tunjukkan layar ini ke kasir jika diperlukan.</p>
+        <button class="btn" onclick="closeSuccessModal()">Tutup & Pesan Lagi</button>
+    </div>
+</div>
     <script src="script.js"></script>
 </body>
 </html>
+
